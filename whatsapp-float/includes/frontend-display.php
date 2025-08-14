@@ -1,63 +1,32 @@
 <?php
-/**
-* Exibição do botão WhatsApp no frontend
-*/
+defined('ABSPATH') || exit;
 
-// Adicionar CSS e JS
-add_action('wp_enqueue_scripts', 'whatsapp_float_enqueue_scripts');
+add_action('wp_enqueue_scripts', 'wf_enqueue_styles');
+add_action('wp_footer', 'wf_display_button');
 
-function whatsapp_float_enqueue_scripts() {
+function wf_enqueue_styles() {
     wp_enqueue_style(
-        'whatsapp-float-css',
-        WHATSAPP_FLOAT_PLUGIN_URL . 'assets/css/whatsapp-float.css',
-        array(),
-        WHATSAPP_FLOAT_VERSION
+        'wf-style',
+        WF_URL . 'assets/css/style.css',
+        [],
+        WF_VERSION
     );
 }
 
-// Adicionar botão ao footer
-add_action('wp_footer', 'whatsapp_float_display_button');
-/*
-function whatsapp_float_display_button() {
-$options = get_option('whatsapp_float_settings');
-
-// Verificar se o botão está ativo e se há um número definido
-if (empty($options['active']) || empty($options['phone_number'])) {
-return;
-}
-
-$phone_number = esc_attr($options['phone_number']);
-$button_text = esc_attr($options['button_text']);
-$position_class = ($options['button_position'] === 'left') ? 'left' : '';
-
-// Gerar URL do WhatsApp
-$whatsapp_url = 'https://wa.me/' . $phone_number;
-
-?>
-<a id="robbu-whatsapp-button" class="<?php echo $position_class; ?>" target="_blank" href="<?php echo $whatsapp_url; ?>">
-<div class="rwb-tooltip"><?php echo $button_text; ?></div>
-<img src="<?php echo WHATSAPP_FLOAT_PLUGIN_URL; ?>assets/images/whatsapp-icon.png" alt="<?php echo $button_text; ?>">
-</a>
-<?php
-}*/
-function whatsapp_float_display_button() {
-    $options = get_option('whatsapp_float_settings');
+function wf_display_button() {
+    $options = get_option('wf_settings');
     
-    if (empty($options['active']) || empty($options['phone_number'])) {
+    if (!$options['active'] || empty($options['phone'])) {
         return;
     }
-    
-    $phone_number = esc_attr($options['phone_number']);
-    $button_text = esc_attr($options['button_text']);
-    $position_class = ($options['button_position'] === 'left') ? 'left' : '';
-    $button_image = !empty($options['button_image']) ? 
-    esc_url($options['button_image']) : 
-    WHATSAPP_FLOAT_PLUGIN_URL . 'assets/images/whatsapp-icon.png';
-    
+
+    $phone = preg_replace('/[^0-9]/', '', $options['phone']);
     ?>
-    <a id="robbu-whatsapp-button" class="<?php echo $position_class; ?>" target="_blank" href="https://wa.me/<?php echo $phone_number; ?>">
-    <div class="rwb-tooltip"><?php echo $button_text; ?></div>
-    <img src="<?php echo $button_image; ?>" alt="<?php echo $button_text; ?>">
+    <a id="wf-button" class="wf-<?php echo esc_attr($options['position']); ?>" 
+       href="https://wa.me/<?php echo esc_attr($phone); ?>" 
+       target="_blank">
+        <img src="<?php echo esc_url($options['image']); ?>" alt="WhatsApp">
+        <span class="wf-tooltip"><?php echo esc_html($options['text']); ?></span>
     </a>
     <?php
 }
